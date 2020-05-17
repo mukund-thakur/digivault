@@ -9,6 +9,8 @@ import org.company.digivault.api.UserResource;
 import org.company.digivault.config.DigiVaultConfiguration;
 import org.digivault.dao.UserDao;
 import org.digivault.entity.User;
+import org.digivault.services.UserMetaService;
+import org.digivault.services.impl.RDBMSUserMetaServiceImpl;
 
 public class DigiVault extends Application<DigiVaultConfiguration> {
 
@@ -26,7 +28,8 @@ public class DigiVault extends Application<DigiVaultConfiguration> {
 
   public void run(DigiVaultConfiguration digiVaultConfiguration, Environment environment) {
     UserDao userDao = new UserDao(hibernateBundle.getSessionFactory());
-    final UserResource userResource = new UserResource(userDao);
+    UserMetaService userMetaService = new RDBMSUserMetaServiceImpl(userDao);
+    final UserResource userResource = new UserResource(userMetaService);
     environment.jersey().register(userResource);
   }
 

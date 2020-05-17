@@ -13,16 +13,18 @@ import org.company.digivault.request.UserSignUpRequest;
 import org.company.digivault.response.UserSignUpResponse;
 import org.digivault.dao.UserDao;
 import org.digivault.entity.User;
+import org.digivault.services.UserMetaService;
 
 @Path("/digivault/um/user")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource  {
 
-  private UserDao userDao;
 
-  public UserResource(UserDao userDao) {
-    this.userDao = userDao;
+  private UserMetaService userMetaService;
+
+  public UserResource(UserMetaService userMetaService) {
+    this.userMetaService = userMetaService;
   }
 
   @POST
@@ -30,7 +32,7 @@ public class UserResource  {
   public Response createUser(UserSignUpRequest request) {
     User user = createUserFromSignupRequest(request);
 
-    User createdUser = userDao.create(user);
+    User createdUser = userMetaService.createUser(user);
 
     UserSignUpResponse signUpResponse = getUserSignUpResponse(createdUser);
 
@@ -45,7 +47,7 @@ public class UserResource  {
   @UnitOfWork
   public Response getUserById(@PathParam("id") Long id) {
 
-    User userForDb = userDao.getById(id);
+    User userForDb = userMetaService.getUserById(id);
 
     if (userForDb == null) {
       return Response

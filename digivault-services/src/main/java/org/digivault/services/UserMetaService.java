@@ -4,7 +4,7 @@ import org.digivault.entity.User;
 
 public interface UserMetaService {
 
-  User addUser(User user);
+  User createUser(User user);
 
   User getUserById(long id);
 

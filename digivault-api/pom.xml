@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>org.digivault</groupId>
-            <artifactId>digivault-persistence</artifactId>
+            <artifactId>digivault-services</artifactId>
         </dependency>
 
     </dependencies>
