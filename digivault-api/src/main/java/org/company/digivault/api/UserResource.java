@@ -1,5 +1,7 @@
 package org.company.digivault.api;
 
+import java.util.List;
+
 import io.dropwizard.hibernate.UnitOfWork;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,13 +11,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.company.digivault.config.DigiVaultConstants;
 import org.company.digivault.request.UserSignUpRequest;
 import org.company.digivault.response.UserSignUpResponse;
-import org.digivault.dao.UserDao;
+import org.digivault.entity.Asset;
 import org.digivault.entity.User;
+import org.digivault.services.AssetMetaService;
 import org.digivault.services.UserMetaService;
 
-@Path("/digivault/um/user")
+@Path(DigiVaultConstants.UM_BASE_API_PATH + "/user")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource  {
@@ -23,8 +27,11 @@ public class UserResource  {
 
   private UserMetaService userMetaService;
 
-  public UserResource(UserMetaService userMetaService) {
+  private AssetMetaService assetMetaService;
+
+  public UserResource(UserMetaService userMetaService, AssetMetaService assetMetaService) {
     this.userMetaService = userMetaService;
+    this.assetMetaService = assetMetaService;
   }
 
   @POST
@@ -57,6 +64,17 @@ public class UserResource  {
 
     return Response
             .ok(userForDb)
+            .build();
+  }
+
+  @GET
+  @Path("/{userId}/assets")
+  @UnitOfWork
+  public Response getAssetsByUserId(@PathParam("userId") Long userId) {
+    List<Asset> assets = assetMetaService.getAllAssetOfUser(userId);
+
+    return Response
+            .ok(assets)
             .build();
   }
 

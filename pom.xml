@@ -20,7 +20,6 @@
 
     <properties>
         <dropwizard.version>2.0.0</dropwizard.version>
-        <lombok.version>1.18.12</lombok.version>
         <mysql.connector.version>8.0.15</mysql.connector.version>
     </properties>
 
@@ -36,12 +35,6 @@
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-hibernate</artifactId>
                 <version>${dropwizard.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
             </dependency>
 
             <dependency>

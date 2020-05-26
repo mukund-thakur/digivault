@@ -6,15 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 import org.company.digivault.models.Gender;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "digivault_user")
-@Getter
-@Setter
 public class User extends BaseEntity {
 
   @Column(name = "active")
