@@ -16,6 +16,12 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-auth</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.digivault</groupId>
             <artifactId>digivault-entity</artifactId>
@@ -29,6 +35,11 @@
         <dependency>
             <groupId>org.digivault</groupId>
             <artifactId>digivault-services</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
         </dependency>
 
     </dependencies>
