@@ -1,23 +1,30 @@
 package org.company.digivault.api;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.jsonwebtoken.Claims;
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
 import org.company.digivault.config.DigiVaultConstants;
 import org.company.digivault.exception.SignInException;
+import org.company.digivault.models.AuthUser;
+import org.company.digivault.models.Role;
 import org.company.digivault.request.UserSignUpRequest;
+import org.company.digivault.response.APIResult;
 import org.company.digivault.response.UserSignUpResponse;
 import org.digivault.entity.Asset;
 import org.company.digivault.request.UserSignInRequest;
@@ -65,32 +72,25 @@ public class UserResource  {
     User user = userMetaService.getUserById(signInRequest.getUserId());
 
     if (user == null) {
-      SignInException signInException = new SignInException("User not registered. Please signup.");
       return Response
               .status(Response.Status.NOT_FOUND)
-              .entity(signInException)
+              .entity(new APIResult("User not registered. Please signup."))
               .build();
     }
 
-    try {
-      validUser(signInRequest, user);
-      String token = createJwt(user);
-      return Response
-              .ok()
-              .header(DigiVaultConstants.AUTHORIZATION_HEADER, token)
-              .build();
-    } catch (Exception e) {
-      return Response
-              .status(Response.Status.FORBIDDEN)
-              .entity(e.getMessage())
-              .build();
-    }
+    validUser(signInRequest, user);
+    String token = createJwt(user);
+    return Response
+            .ok()
+            .header(DigiVaultConstants.AUTHORIZATION_HEADER, token)
+            .build();
   }
 
   @GET
   @Path("/{id}")
   @UnitOfWork
-  public Response getUserById(@Auth @PathParam("id") Long id) {
+  @PermitAll
+  public Response getUserById(@Auth AuthUser user, @PathParam("id") Long id) {
 
     User userForDb = userMetaService.getUserById(id);
 
@@ -108,7 +108,8 @@ public class UserResource  {
   @GET
   @Path("/{userId}/assets")
   @UnitOfWork
-  public Response getAssetsByUserId(@PathParam("userId") Long userId) {
+  @PermitAll
+  public Response getAssetsByUserId(@Auth AuthUser auth, @PathParam("userId") Long userId) {
     List<Asset> assets = assetMetaService.getAllAssetOfUser(userId);
 
     return Response
@@ -117,19 +118,21 @@ public class UserResource  {
   }
 
   private void validUser(UserSignInRequest signInRequest, User actualUserFromId)
-          throws SignInException {
+          throws WebApplicationException {
     if (!signInRequest.getContactNum().equals(actualUserFromId.getContactNum())) {
-      throw new SignInException("Incorrect phone number.");
+      throw new WebApplicationException("Incorrect phone number.", Response.Status.FORBIDDEN);
     }
 
     if (!signInRequest.getPassword().equals(actualUserFromId.getPassword())) {
-      throw new SignInException("Incorrect Password.");
+      throw new WebApplicationException("Incorrect Password.", Response.Status.FORBIDDEN);
     }
   }
 
   private String createJwt(User user) {
     TokenService<Claims> tokenService = new JwtTokenServiceImpl();
-    return tokenService.createToken(String.valueOf(user.getId()));
+    final Set<Role> allowedRoles = new HashSet<Role>();
+    allowedRoles.add(Role.USER);
+    return tokenService.createToken(String.valueOf(user.getId()), allowedRoles);
   }
 
   private UserSignUpResponse getUserSignUpResponse(User createdUser) {
