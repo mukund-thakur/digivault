@@ -10,7 +10,6 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.ScanningHibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.jsonwebtoken.Claims;
 import org.company.digivault.api.AssetManagementService;
 import org.company.digivault.api.UserResource;
 import org.company.digivault.config.DigiVaultConfiguration;
@@ -21,14 +20,16 @@ import org.digivault.server.auth.JwtAuthFilter;
 import org.digivault.server.auth.JwtAuthenticator;
 import org.digivault.server.auth.JwtAuthorizer;
 import org.digivault.services.AssetMetaService;
-import org.digivault.services.TokenService;
 import org.digivault.services.UserMetaService;
-import org.digivault.services.impl.JwtTokenServiceImpl;
 import org.digivault.services.impl.RDBMSAssetMetaServiceImpl;
 import org.digivault.services.impl.RDBMSUserMetaServiceImpl;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DigiVault extends Application<DigiVaultConfiguration> {
+
+  private static Logger LOG = LoggerFactory.getLogger(DigiVault.class);
 
   private final HibernateBundle<DigiVaultConfiguration> hibernateBundle = new
             ScanningHibernateBundle<DigiVaultConfiguration>("org.digivault.entity") {
@@ -85,6 +86,7 @@ public class DigiVault extends Application<DigiVaultConfiguration> {
   }
 
   public static void main(String[] args) throws Exception {
+    LOG.info("Starting DigiVault Server");
     new DigiVault().run(args);
   }
 

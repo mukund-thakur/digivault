@@ -31,12 +31,15 @@ import org.digivault.services.AssetMetaService;
 import org.digivault.services.TokenService;
 import org.digivault.services.UserMetaService;
 import org.digivault.services.impl.JwtTokenServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path(DigiVaultConstants.UM_BASE_API_PATH + "/user")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource  {
 
+  private static final Logger LOG = LoggerFactory.getLogger(UserResource.class);
 
   private UserMetaService userMetaService;
 
@@ -74,7 +77,7 @@ public class UserResource  {
       throw new WebApplicationException("User not registered. Please signup.",
               Response.Status.NOT_FOUND);
     }
-
+    LOG.info("User signin request received for {} ", user.getId());
     validateSignInReq(signInRequest, user);
     String token = createJwt(user);
     return Response
