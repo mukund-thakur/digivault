@@ -9,6 +9,12 @@ public class UserSignUpRequest {
   private String name;
 
   @JsonProperty
+  private String email;
+
+  @JsonProperty
+  private boolean isEmailVerified;
+
+  @JsonProperty
   private String contactNum;
 
   @JsonProperty
@@ -29,6 +35,22 @@ public class UserSignUpRequest {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public boolean isEmailVerified() {
+    return isEmailVerified;
+  }
+
+  public void setEmailVerified(boolean emailVerified) {
+    isEmailVerified = emailVerified;
   }
 
   public String getContactNum() {
@@ -55,19 +77,19 @@ public class UserSignUpRequest {
     this.dob = dob;
   }
 
-  public String getGcmId() {
-    return gcmId;
-  }
-
-  public void setGcmId(String gcmId) {
-    this.gcmId = gcmId;
-  }
-
   public Gender getGender() {
     return gender;
   }
 
   public void setGender(Gender gender) {
     this.gender = gender;
+  }
+
+  public String getGcmId() {
+    return gcmId;
+  }
+
+  public void setGcmId(String gcmId) {
+    this.gcmId = gcmId;
   }
 }

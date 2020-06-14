@@ -20,11 +20,9 @@ import javax.ws.rs.core.Response;
 
 
 import org.company.digivault.config.DigiVaultConstants;
-import org.company.digivault.exception.SignInException;
 import org.company.digivault.models.AuthUser;
 import org.company.digivault.models.Role;
 import org.company.digivault.request.UserSignUpRequest;
-import org.company.digivault.response.APIResult;
 import org.company.digivault.response.UserSignUpResponse;
 import org.digivault.entity.Asset;
 import org.company.digivault.request.UserSignInRequest;
@@ -52,6 +50,7 @@ public class UserResource  {
   @POST
   @UnitOfWork
   public Response createUser(UserSignUpRequest request) {
+    validateSignupRequest(request);
     User user = createUserFromSignupRequest(request);
 
     User createdUser = userMetaService.createUser(user);
@@ -72,13 +71,11 @@ public class UserResource  {
     User user = userMetaService.getUserById(signInRequest.getUserId());
 
     if (user == null) {
-      return Response
-              .status(Response.Status.NOT_FOUND)
-              .entity(new APIResult("User not registered. Please signup."))
-              .build();
+      throw new WebApplicationException("User not registered. Please signup.",
+              Response.Status.NOT_FOUND);
     }
 
-    validUser(signInRequest, user);
+    validateSignInReq(signInRequest, user);
     String token = createJwt(user);
     return Response
             .ok()
@@ -92,16 +89,15 @@ public class UserResource  {
   @PermitAll
   public Response getUserById(@Auth AuthUser user, @PathParam("id") Long id) {
 
-    User userForDb = userMetaService.getUserById(id);
+    User userFromDb = userMetaService.getUserById(id);
 
-    if (userForDb == null) {
-      return Response
-              .status(Response.Status.NOT_FOUND)
-              .build();
+    if (userFromDb == null) {
+      throw new WebApplicationException("User not registered. Please signup.",
+              Response.Status.NOT_FOUND);
     }
 
     return Response
-            .ok(userForDb)
+            .ok(userFromDb)
             .build();
   }
 
@@ -117,13 +113,18 @@ public class UserResource  {
             .build();
   }
 
-  private void validUser(UserSignInRequest signInRequest, User actualUserFromId)
+  private void validateSignInReq(UserSignInRequest signInRequest, User actualUserFromId)
           throws WebApplicationException {
-    if (!signInRequest.getContactNum().equals(actualUserFromId.getContactNum())) {
-      throw new WebApplicationException("Incorrect phone number.", Response.Status.FORBIDDEN);
+    boolean validContact = signInRequest.getContactNum() != null &&
+            signInRequest.getContactNum().equals(actualUserFromId.getContactNum());
+    boolean validEmail = signInRequest.getEmail() != null &&
+            signInRequest.getEmail().equals(actualUserFromId.getEmail());
+    if (!validEmail && !validContact) {
+      throw new WebApplicationException("Incorrect phone number/email id.", Response.Status.FORBIDDEN);
     }
 
-    if (!signInRequest.getPassword().equals(actualUserFromId.getPassword())) {
+    if (signInRequest.getPassword() != null &&
+            !signInRequest.getPassword().equals(actualUserFromId.getPassword())) {
       throw new WebApplicationException("Incorrect Password.", Response.Status.FORBIDDEN);
     }
   }
@@ -145,11 +146,26 @@ public class UserResource  {
   private User createUserFromSignupRequest(UserSignUpRequest request) {
     User user = new User();
     user.setName(request.getName());
+    user.setEmail(request.getEmail());
+    user.setEmailVerified(request.isEmailVerified());
     user.setContactNum(request.getContactNum());
     user.setPassword(request.getPassword());
     user.setDob(request.getDob());
     user.setGcmId(request.getGcmId());
     user.setGender(request.getGender());
     return user;
+  }
+
+  private void validateSignupRequest(UserSignUpRequest request) {
+    boolean passwordNull = request.getPassword() == null;
+    boolean passwordEmpty = request.getPassword() != null && request.getPassword().isEmpty() ;
+    if (passwordEmpty || passwordNull) {
+      throw new WebApplicationException("Password can't be empty or null", Response.Status.BAD_REQUEST);
+    }
+    boolean emailPresent = request.getEmail() != null && !request.getEmail().isEmpty();
+    boolean contactNumPresent = request.getContactNum() != null && !request.getContactNum().isEmpty();
+    if (!emailPresent && !contactNumPresent) {
+      throw new WebApplicationException("Either email or contact number should be set", Response.Status.BAD_REQUEST);
+    }
   }
 }

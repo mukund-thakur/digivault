@@ -1,6 +1,7 @@
 package org.digivault.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,10 +30,14 @@ public class User extends BaseEntity {
   private String contactNum;
 
   @Column(name = "password")
+  @JsonIgnore
   private String password;
 
   @Column(name = "email")
   private String email;
+
+  @Column(name = "email_verified")
+  private boolean isEmailVerified = false;
 
   @Column(name = "pan")
   private String pan;
@@ -97,6 +102,14 @@ public class User extends BaseEntity {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public boolean isEmailVerified() {
+    return isEmailVerified;
+  }
+
+  public void setEmailVerified(boolean emailVerified) {
+    isEmailVerified = emailVerified;
   }
 
   public String getPan() {

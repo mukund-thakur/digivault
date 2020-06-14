@@ -4,11 +4,12 @@ create table if not exists `digivault_user`
     created_at DATETIME,
     updated_at DATETIME,
     name    varchar(64) not null,
-    dob     varchar(64) not null,
+    dob     varchar(64) default null,
     gender  varchar(64) not null,
-    contact_num varchar(64) not null,
+    contact_num varchar(64) default null,
     active  int not null,
     email   varchar(64) default null,
+    email_verified int not null,
     password varchar(64) not null,
     pan     varchar(64) default null,
     aadhar  varchar(64) default null,
@@ -32,5 +33,5 @@ create table if not exists `digivault_asset`
     document_id  varchar(256) default null,
     user_id bigint not null,
     INDEX user_assets (user_id),
-    CONSTRAINT FOREIGN KEY (`user_id`) REFERENCES `digivault_user` (`id`)
+    FOREIGN KEY (`user_id`) REFERENCES `digivault_user` (`id`)
 ) ENGINE = InnoDb;
