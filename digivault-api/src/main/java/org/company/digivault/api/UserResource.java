@@ -11,6 +11,7 @@ import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.Response;
 import org.company.digivault.config.DigiVaultConstants;
 import org.company.digivault.models.AuthUser;
 import org.company.digivault.models.Role;
+import org.company.digivault.request.UpdateUserRequest;
 import org.company.digivault.request.UserSignUpRequest;
 import org.company.digivault.response.UserSignUpResponse;
 import org.digivault.entity.Asset;
@@ -63,6 +65,28 @@ public class UserResource  {
     return Response
             .ok(signUpResponse)
             .status(Response.Status.CREATED)
+            .build();
+  }
+
+  @PUT
+  @UnitOfWork
+  @Path("/{userId}")
+  public Response updateUser(@Auth AuthUser user,
+                             UpdateUserRequest updateUserRequest,
+                             @PathParam("userId") Long userId) {
+    User userFromDb = userMetaService.getUserById(userId);
+
+    if (userFromDb == null) {
+      throw new WebApplicationException("User not registered. Please signup.",
+              Response.Status.NOT_FOUND);
+    }
+    LOG.debug("Update user request received for id {}, requestBody {}",
+            userId, updateUserRequest.toString());
+    User updatedUser = getUpdatedUser(userFromDb, updateUserRequest);
+    updatedUser = userMetaService.updateUser(updatedUser);
+
+    return Response
+            .ok(updatedUser)
             .build();
   }
 
@@ -171,4 +195,19 @@ public class UserResource  {
       throw new WebApplicationException("Either email or contact number should be set", Response.Status.BAD_REQUEST);
     }
   }
+
+
+  private User getUpdatedUser(User userFromDb, UpdateUserRequest updateUserRequest) {
+    userFromDb.setName(updateUserRequest.getName());
+    userFromDb.setDob(updateUserRequest.getDob());
+    userFromDb.setContactNum(updateUserRequest.getContactNum());
+    userFromDb.setPassword(updateUserRequest.getPassword());
+    userFromDb.setEmail(updateUserRequest.getEmail());
+    userFromDb.setEmailVerified(updateUserRequest.isEmailVerified());
+    userFromDb.setPan(updateUserRequest.getPan());
+    userFromDb.setAadhar(updateUserRequest.getAadhar());
+    userFromDb.setGcmId(updateUserRequest.getGcmId());
+    return userFromDb;
+  }
+
 }

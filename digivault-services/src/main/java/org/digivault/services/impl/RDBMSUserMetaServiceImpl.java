@@ -19,4 +19,8 @@ public class RDBMSUserMetaServiceImpl implements UserMetaService {
   public User getUserById(long id) {
     return userDao.getById(id);
   }
+
+  public User updateUser(User updatedUser) {
+    return userDao.updateUser(updatedUser);
+  }
 }

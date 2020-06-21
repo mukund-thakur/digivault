@@ -8,4 +8,6 @@ public interface UserMetaService {
 
   User getUserById(long id);
 
+  User updateUser(User updatedUser);
+
 }

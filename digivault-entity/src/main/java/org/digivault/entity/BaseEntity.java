@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 
 
 @MappedSuperclass
@@ -29,6 +30,11 @@ public abstract class BaseEntity {
   protected void onCreate() {
     createdAt = new Timestamp(new Date().getTime());
     updatedAt = createdAt;
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    updatedAt = new Timestamp(new Date().getTime());
   }
 
   public Long getId() {

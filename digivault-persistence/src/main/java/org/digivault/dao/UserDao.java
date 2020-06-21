@@ -17,4 +17,8 @@ public class UserDao extends AbstractDAO<User> {
   public User getById(Long id) {
     return get(id);
   }
+
+  public User updateUser(User updatedUser) {
+    return persist(updatedUser);
+  }
 }
