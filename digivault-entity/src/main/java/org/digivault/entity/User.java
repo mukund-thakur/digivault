@@ -6,11 +6,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import org.company.digivault.models.Gender;
+import org.company.digivault.queries.UserNamedQueries;
 
 @Entity
 @Table(name = "digivault_user")
+@NamedQueries({
+        @NamedQuery(name = UserNamedQueries.GET_USER_BY_EMAIL_KEY, query = UserNamedQueries.GET_USER_BY_EMAIL_VALUE),
+        @NamedQuery(name = UserNamedQueries.GET_USER_BY_CONTACT_KEY, query = UserNamedQueries.GET_USER_BY_CONTACT_VALUE)
+})
 public class User extends BaseEntity {
 
   @Column(name = "active")

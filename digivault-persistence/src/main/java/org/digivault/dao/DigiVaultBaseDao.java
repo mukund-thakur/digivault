@@ -1,0 +1,28 @@
+package org.digivault.dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import io.dropwizard.hibernate.AbstractDAO;
+import javax.persistence.Query;
+import org.hibernate.SessionFactory;
+
+public abstract class DigiVaultBaseDao<E> extends AbstractDAO<E> {
+
+  public DigiVaultBaseDao(SessionFactory sessionFactory) {
+    super(sessionFactory);
+  }
+
+  protected Optional<E> getEntity(String queryString, String key, Object value) {
+    Query query = currentSession().createNamedQuery(queryString);
+    query.setParameter(key, value);
+    List resultList = query.getResultList();
+    List<E> userList = new ArrayList<E>();
+    for (Object obj : resultList) {
+      userList.add((E) obj);
+    }
+    return userList.size() == 0 ? Optional.empty()
+            : Optional.of(userList.get(0));
+  }
+}

@@ -9,11 +9,12 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import org.company.digivault.models.AssetServiceProvider;
 import org.company.digivault.models.AssetType;
+import org.company.digivault.queries.AssetNamedQueries;
 
 @Entity
 @Table(name = "digivault_asset")
 @NamedQueries({
-        @NamedQuery(name = "get_all_asset_of_user_id", query = "select OBJECT(a) from Asset a where a.userId = :userId")
+        @NamedQuery(name = AssetNamedQueries.GET_ALL_ASSET_OF_USER_KEY, query = AssetNamedQueries.GET_ALL_ASSET_OF_USER_VALUE)
 })
 public class Asset extends BaseEntity {
 

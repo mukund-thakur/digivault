@@ -5,11 +5,12 @@ import java.util.List;
 
 import io.dropwizard.hibernate.AbstractDAO;
 import javax.persistence.Query;
+import org.company.digivault.queries.AssetNamedQueries;
 import org.digivault.entity.Asset;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 
-public class AssetDao extends AbstractDAO<Asset> {
+public class AssetDao extends DigiVaultBaseDao<Asset> {
 
   public AssetDao(SessionFactory sessionFactory) {
     super(sessionFactory);
@@ -24,7 +25,7 @@ public class AssetDao extends AbstractDAO<Asset> {
   }
 
   public List<Asset> getAllAssetsOfUserId(Long userId) {
-    Query query = currentSession().createNamedQuery("get_all_asset_of_user_id");
+    Query query = currentSession().createNamedQuery(AssetNamedQueries.GET_ALL_ASSET_OF_USER_KEY);
     query.setParameter("userId", userId);
     List resultList = query.getResultList();
     List<Asset> assetList = new ArrayList<Asset>();

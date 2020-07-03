@@ -2,6 +2,7 @@ package org.company.digivault.api;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import io.dropwizard.auth.Auth;
@@ -193,6 +194,20 @@ public class UserResource  {
     boolean contactNumPresent = request.getContactNum() != null && !request.getContactNum().isEmpty();
     if (!emailPresent && !contactNumPresent) {
       throw new WebApplicationException("Either email or contact number should be set", Response.Status.BAD_REQUEST);
+    }
+
+    Optional<User> existingUserByEmail = userMetaService.getUserByEmail(request.getEmail());
+
+    if (existingUserByEmail.isPresent()) {
+      throw new WebApplicationException("User already registered with email id " + request.getEmail(),
+              Response.Status.BAD_REQUEST);
+    }
+
+    Optional<User> existingUserByContact = userMetaService.getUserByContact(request.getContactNum());
+
+    if (existingUserByContact.isPresent()) {
+      throw new WebApplicationException("User already registered with contactNum " + request.getContactNum(),
+              Response.Status.BAD_REQUEST);
     }
   }
 
