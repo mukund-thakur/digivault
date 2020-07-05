@@ -18,6 +18,10 @@ public class RDBMSAssetMetaServiceImpl implements AssetMetaService {
     return assetDao.createAsset(asset);
   }
 
+  public Asset updateAsset(Asset updatedAsset) {
+    return assetDao.updateAsset(updatedAsset);
+  }
+
   public Asset getAssetById(Long assetId) {
     return assetDao.getAssetById(assetId);
   }

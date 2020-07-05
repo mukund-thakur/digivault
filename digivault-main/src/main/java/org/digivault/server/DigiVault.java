@@ -80,8 +80,10 @@ public class DigiVault extends Application<DigiVaultConfiguration> {
 
   private void addAssetResource(Environment environment) {
     AssetDao assetDao = new AssetDao(hibernateBundle.getSessionFactory());
+    UserDao userDao = new UserDao(hibernateBundle.getSessionFactory());
+    UserMetaService userMetaService = new RDBMSUserMetaServiceImpl(userDao);
     AssetMetaService assetMetaService = new RDBMSAssetMetaServiceImpl(assetDao);
-    final AssetManagementService assetManagementService = new AssetManagementService(assetMetaService);
+    final AssetManagementService assetManagementService = new AssetManagementService(assetMetaService, userMetaService);
     environment.jersey().register(assetManagementService);
   }
 

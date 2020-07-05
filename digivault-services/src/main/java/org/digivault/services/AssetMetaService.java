@@ -8,6 +8,8 @@ public interface AssetMetaService {
 
   Asset createAsset(Asset asset);
 
+  Asset updateAsset(Asset updatedAsset);
+
   Asset getAssetById(Long assetId);
 
   List<Asset> getAllAssetOfUser(Long userId);

@@ -20,6 +20,10 @@ public class AssetDao extends DigiVaultBaseDao<Asset> {
     return persist(asset);
   }
 
+  public Asset updateAsset(Asset updatedAsset) {
+    return persist(updatedAsset);
+  }
+
   public Asset getAssetById(Long assetId) {
     return get(assetId);
   }
