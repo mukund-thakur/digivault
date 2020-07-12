@@ -35,3 +35,11 @@ create table if not exists `digivault_asset`
     INDEX user_assets (user_id),
     FOREIGN KEY (`user_id`) REFERENCES `digivault_user` (`id`)
 ) ENGINE = InnoDb;
+
+create table if not exists `digivault_loggedin_user`
+(
+    user_id bigint not null,
+    token varchar(1024) not null,
+    INDEX digivault_loggedin_user (user_id),
+    FOREIGN KEY (`user_id`) REFERENCES `digivault_user` (`id`)
+) ENGINE = InnoDb;

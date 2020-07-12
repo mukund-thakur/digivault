@@ -26,11 +26,15 @@ import org.company.digivault.models.AuthUser;
 import org.company.digivault.models.Role;
 import org.company.digivault.request.UpdateUserRequest;
 import org.company.digivault.request.UserSignUpRequest;
+import org.company.digivault.response.APIResult;
 import org.company.digivault.response.UserSignUpResponse;
+import org.digivault.dao.LoggedInUserDao;
 import org.digivault.entity.Asset;
 import org.company.digivault.request.UserSignInRequest;
+import org.digivault.entity.LoggedInUser;
 import org.digivault.entity.User;
 import org.digivault.services.AssetMetaService;
+import org.digivault.services.LoggedInUserMetaService;
 import org.digivault.services.TokenService;
 import org.digivault.services.UserMetaService;
 import org.digivault.services.impl.JwtTokenServiceImpl;
@@ -48,9 +52,14 @@ public class UserResource  {
 
   private AssetMetaService assetMetaService;
 
-  public UserResource(UserMetaService userMetaService, AssetMetaService assetMetaService) {
+  private LoggedInUserMetaService loggedInUserMetaService;
+
+  public UserResource(UserMetaService userMetaService,
+                      AssetMetaService assetMetaService,
+                      LoggedInUserMetaService loggedInUserMetaService) {
     this.userMetaService = userMetaService;
     this.assetMetaService = assetMetaService;
+    this.loggedInUserMetaService = loggedInUserMetaService;
   }
 
   @POST
@@ -111,6 +120,21 @@ public class UserResource  {
             .build();
   }
 
+  @POST
+  @Path("/logout/{userId}")
+  @UnitOfWork
+  public Response logout(@Auth AuthUser user, @PathParam("userId") Long userId) {
+    LoggedInUser loggedInUser = loggedInUserMetaService.getLogInInfo(userId);
+    if (loggedInUser == null) {
+      throw new WebApplicationException("User already logged out.", Response.Status.BAD_REQUEST);
+    }
+    loggedInUserMetaService.deleteLoginInfo(userId);
+
+    return Response
+            .ok(new APIResult("Logout successful!!!"))
+            .build();
+  }
+
   @GET
   @Path("/{id}")
   @UnitOfWork
@@ -158,7 +182,7 @@ public class UserResource  {
   }
 
   private String createJwt(User user) {
-    TokenService<Claims> tokenService = new JwtTokenServiceImpl();
+    TokenService<Claims> tokenService = new JwtTokenServiceImpl(loggedInUserMetaService);
     final Set<Role> allowedRoles = new HashSet<Role>();
     allowedRoles.add(Role.USER);
     return tokenService.createToken(String.valueOf(user.getId()), allowedRoles);

@@ -8,20 +8,24 @@ import io.dropwizard.auth.PolymorphicAuthValueFactoryProvider;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.ScanningHibernateBundle;
+import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.company.digivault.api.AssetManagementService;
 import org.company.digivault.api.UserResource;
 import org.company.digivault.config.DigiVaultConfiguration;
 import org.digivault.dao.AssetDao;
+import org.digivault.dao.LoggedInUserDao;
 import org.digivault.dao.UserDao;
 import org.company.digivault.models.AuthUser;
 import org.digivault.server.auth.JwtAuthFilter;
 import org.digivault.server.auth.JwtAuthenticator;
 import org.digivault.server.auth.JwtAuthorizer;
 import org.digivault.services.AssetMetaService;
+import org.digivault.services.LoggedInUserMetaService;
 import org.digivault.services.UserMetaService;
 import org.digivault.services.impl.RDBMSAssetMetaServiceImpl;
+import org.digivault.services.impl.RDBMSLoggedInUserMetaService;
 import org.digivault.services.impl.RDBMSUserMetaServiceImpl;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.slf4j.Logger;
@@ -54,8 +58,12 @@ public class DigiVault extends Application<DigiVaultConfiguration> {
   }
 
   private void registerAuthFilters(Environment environment) {
+    LoggedInUserDao loggedInUserDao = new LoggedInUserDao(hibernateBundle.getSessionFactory());
+    LoggedInUserMetaService loggedInUserMetaService = new RDBMSLoggedInUserMetaService(loggedInUserDao);
+    JwtAuthenticator jwtAuthenticator = new UnitOfWorkAwareProxyFactory(hibernateBundle)
+            .create(JwtAuthenticator.class, LoggedInUserMetaService.class, loggedInUserMetaService);
     final JwtAuthFilter jwtAuthFilter = new JwtAuthFilter.Builder()
-            .setAuthenticator(new JwtAuthenticator())
+            .setAuthenticator(jwtAuthenticator)
             .setAuthorizer(new JwtAuthorizer())
             .buildAuthFilter();
     final  PolymorphicAuthDynamicFeature feature =
@@ -72,9 +80,11 @@ public class DigiVault extends Application<DigiVaultConfiguration> {
   private void addUserResource(Environment environment) {
     UserDao userDao = new UserDao(hibernateBundle.getSessionFactory());
     AssetDao assetDao = new AssetDao(hibernateBundle.getSessionFactory());
+    LoggedInUserDao loggedInUserDao = new LoggedInUserDao(hibernateBundle.getSessionFactory());
     UserMetaService userMetaService = new RDBMSUserMetaServiceImpl(userDao);
     AssetMetaService assetMetaService = new RDBMSAssetMetaServiceImpl(assetDao);
-    final UserResource userResource = new UserResource(userMetaService, assetMetaService);
+    LoggedInUserMetaService loggedInUserMetaService = new RDBMSLoggedInUserMetaService(loggedInUserDao);
+    final UserResource userResource = new UserResource(userMetaService, assetMetaService, loggedInUserMetaService);
     environment.jersey().register(userResource);
   }
 

@@ -1,5 +1,6 @@
 package org.digivault.dao;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,14 @@ public abstract class DigiVaultBaseDao<E> extends AbstractDAO<E> {
 
   public DigiVaultBaseDao(SessionFactory sessionFactory) {
     super(sessionFactory);
+  }
+
+  public E getEntity(Long id) {
+    return super.get(id);
+  }
+
+  public E addEntity(E e) {
+    return persist(e);
   }
 
   protected Optional<E> getEntity(String queryString, String key, Object value) {
